@@ -1,12 +1,21 @@
 <template>
-    <div class="posts">
-        <post-item 
-            v-for="post in posts" 
-            :key="post.id" 
-            :post="post"
-            @remove="$emit('remove', post)"
-        />
+    <div v-if="posts.length > 0">
+        <h1>List of Posts</h1>
+        <div class="posts">
+            <post-item 
+                v-for="post in posts" 
+                :key="post.id" 
+                :post="post"
+                @remove="$emit('remove', post)"
+            />
+        </div>
     </div>
+    <h1
+        style="color: red"
+        v-else
+    >
+        There are no posts yet. Create the first
+    </h1>
 </template>
 
 <script>
