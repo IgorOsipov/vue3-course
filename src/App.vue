@@ -8,6 +8,11 @@
             >
                 Add Post
             </my-button>
+            <my-input
+                class="post__search"
+                v-model="searchQuery"
+                placeholder="Search"
+            />
             <my-select 
                 v-model="selectedSort"
                 :options="sortOptions"
@@ -19,7 +24,7 @@
         </my-dialog>
         <post-list 
             @remove="removePost" 
-            :posts="sortedPosts"
+            :posts="sortedAndSearchedPosts"
             v-if="!isPostsLoading"
         />
         <div
@@ -31,18 +36,12 @@
 <script>
 import PostForm from "./components/PostForm.vue";
 import PostList from "./components/PostList.vue";
-import MyButton from './components/UI/MyButton.vue';
-import MyDialog from './components/UI/MyDialog.vue';
 import axios from 'axios';
-import MySelect from './components/UI/MySelect.vue';
 
 export default{
     components: {
         PostForm,
         PostList,
-        MyDialog,
-        MyButton,
-        MySelect
     },
     data(){
         return{
@@ -50,6 +49,7 @@ export default{
             dialogVisible: false,
             isPostsLoading: false,
             selectedSort: '',
+            searchQuery: '',
             sortOptions: [
                 {value: 'title', name: 'By Title'},
                 {value: 'body', name: 'By Body'},
@@ -86,14 +86,10 @@ export default{
         sortedPosts(){
             return [...this.posts].sort((p1, p2) => p1[this.selectedSort]?.localeCompare(p2[this.selectedSort]))
         },
+        sortedAndSearchedPosts(){
+            return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()))
+        }
     },
-    watch: {
-        // selectedSort(newValue){
-        //     this.posts.sort((p1, p2)=>{
-        //         return p1[newValue]?.localeCompare(p2[newValue])
-        //     });
-        // },
-    }
 }
 </script>
 
@@ -139,6 +135,12 @@ form{
 }
 
 .select{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.post__search{
+    max-width: 50%;
     margin-top: 15px;
     margin-bottom: 15px;
 }

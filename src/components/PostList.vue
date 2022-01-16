@@ -1,6 +1,6 @@
 <template>
     <div v-if="posts.length > 0">
-        <h1>List of Posts</h1>
+        <h2>List of Posts</h2>
         <div class="posts">
             <transition-group name="list">
                 <post-item 
@@ -12,12 +12,12 @@
             </transition-group>
         </div>
     </div>
-    <h1
+    <h2
         style="color: red"
         v-else
     >
         There are no posts yet. Create the first
-    </h1>
+    </h2>
 </template>
 
 <script>
