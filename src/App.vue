@@ -9,7 +9,14 @@
         <my-dialog v-model:show="dialogVisible">
             <post-form @create="createPost"/>
         </my-dialog>
-        <post-list @remove="removePost" :posts="posts"/>
+        <post-list 
+            @remove="removePost" 
+            :posts="posts"
+            v-if="!isPostsLoading"
+        />
+        <div
+            v-else
+        >Loading...</div>
     </div>
 </template>
 
@@ -18,6 +25,7 @@ import PostForm from "./components/PostForm.vue";
 import PostList from "./components/PostList.vue";
 import MyButton from './components/UI/MyButton.vue';
 import MyDialog from './components/UI/MyDialog.vue';
+import axios from 'axios';
 
 export default{
     components: {
@@ -28,29 +36,9 @@ export default{
     },
     data(){
         return{
-            posts: [
-                {
-                    id: 1,
-                    title: 'Javascript 1',
-                    body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Atque explicabo architecto officiis incidunt consequuntur eligendi aliquam labore at beatae fugiat sed adipisci, numquam fugit nesciunt mollitia aperiam sapiente officia perspiciatis. Adipisci cum porro mollitia sapiente."
-                },
-                {
-                    id: 2,
-                    title: 'Javascript 2',
-                    body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Atque explicabo architecto officiis incidunt consequuntur eligendi aliquam labore at beatae fugiat sed adipisci, numquam fugit nesciunt mollitia aperiam sapiente officia perspiciatis. Adipisci cum porro mollitia sapiente."
-                },
-                {
-                    id: 3,
-                    title: 'Javascript 3',
-                    body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Atque explicabo architecto officiis incidunt consequuntur eligendi aliquam labore at beatae fugiat sed adipisci, numquam fugit nesciunt mollitia aperiam sapiente officia perspiciatis. Adipisci cum porro mollitia sapiente."
-                },
-                {
-                    id: 4,
-                    title: 'Javascript 4',
-                    body: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Atque explicabo architecto officiis incidunt consequuntur eligendi aliquam labore at beatae fugiat sed adipisci, numquam fugit nesciunt mollitia aperiam sapiente officia perspiciatis. Adipisci cum porro mollitia sapiente."
-                }
-            ],
-            dialogVisible: false
+            posts: [],
+            dialogVisible: false,
+            isPostsLoading: false,
         }
     },
     methods: {
@@ -63,7 +51,21 @@ export default{
        },
        showDialog(){
            this.dialogVisible = true;
+       },
+       async fetchPosts(){
+           try {
+                this.isPostsLoading = true;
+                const responce = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+                this.posts = responce.data;
+           } catch (error) {
+               console.log(error)
+           }finally{
+                this.isPostsLoading = false;
+           }
        }
+    },
+    mounted(){
+        this.fetchPosts();
     }
 }
 </script>
