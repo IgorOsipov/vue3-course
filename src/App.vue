@@ -29,20 +29,10 @@
         />
         <div
             v-else
-        >Loading...</div>
-        <div class="page__wrapper">
-            <div 
-                class="page"
-                :class="{
-                    'current__page': p === page 
-                }"
-                v-for="p in totalPages" 
-                :key="p"
-                @click="changePage(p)"
-            >
-                {{p}}
-            </div>
+        >
+            Loading...
         </div>
+        <div ref="observer" class="observer"></div>
     </div>
 </template>
 
@@ -64,7 +54,7 @@ export default{
             selectedSort: '',
             searchQuery: '',
             page: 1,
-            limit: 10,
+            limit: 20,
             totalPages: 0,
             sortOptions: [
                 {value: 'title', name: 'By Title'},
@@ -83,9 +73,6 @@ export default{
        showDialog(){
            this.dialogVisible = true;
        },
-       changePage(pageNumber){
-           this.page = pageNumber
-       },
        async fetchPosts(){
            try {
                 this.isPostsLoading = true;
@@ -102,10 +89,37 @@ export default{
            }finally{
                 this.isPostsLoading = false;
            }
+       },
+       async loadedMorePosts(){
+           try {
+                this.page++;
+                const responce = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+                    params: {
+                        _page: this.page,
+                        _limit: this.limit
+                    }
+                });
+                this.totalPages = Math.ceil(responce.headers['x-total-count'] / this.limit);
+                this.posts = [...this.posts, ...responce.data];
+           } catch (error) {
+               console.log(error)
+           }
        }
     },
     mounted(){
         this.fetchPosts();
+        
+        const options = {
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+        const callback = (entries, observer) => {
+            if(entries[0].isIntersecting && this.page < this.totalPages){
+                this.loadedMorePosts();
+            }
+        };
+        const observer = new IntersectionObserver(callback, options);
+        observer.observe(this.$refs.observer);
     },
     computed: {
         sortedPosts(){
@@ -116,9 +130,7 @@ export default{
         }
     },
     watch: {
-        page(){
-           this.fetchPosts();
-        }
+
     }
 }
 </script>
@@ -191,5 +203,6 @@ form{
     border: 2px solid teal;
 
 }
+
 
 </style>
