@@ -30,6 +30,19 @@
         <div
             v-else
         >Loading...</div>
+        <div class="page__wrapper">
+            <div 
+                class="page"
+                :class="{
+                    'current__page': p === page 
+                }"
+                v-for="p in totalPages" 
+                :key="p"
+                @click="changePage(p)"
+            >
+                {{p}}
+            </div>
+        </div>
     </div>
 </template>
 
@@ -50,6 +63,9 @@ export default{
             isPostsLoading: false,
             selectedSort: '',
             searchQuery: '',
+            page: 1,
+            limit: 10,
+            totalPages: 0,
             sortOptions: [
                 {value: 'title', name: 'By Title'},
                 {value: 'body', name: 'By Body'},
@@ -67,10 +83,19 @@ export default{
        showDialog(){
            this.dialogVisible = true;
        },
+       changePage(pageNumber){
+           this.page = pageNumber
+       },
        async fetchPosts(){
            try {
                 this.isPostsLoading = true;
-                const responce = await axios.get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+                const responce = await axios.get('https://jsonplaceholder.typicode.com/posts', {
+                    params: {
+                        _page: this.page,
+                        _limit: this.limit
+                    }
+                });
+                this.totalPages = Math.ceil(responce.headers['x-total-count'] / this.limit);
                 this.posts = responce.data;
            } catch (error) {
                console.log(error)
@@ -90,6 +115,11 @@ export default{
             return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()))
         }
     },
+    watch: {
+        page(){
+           this.fetchPosts();
+        }
+    }
 }
 </script>
 
@@ -144,4 +174,22 @@ form{
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+.page__wrapper{
+    display: flex;
+    margin-top: 15px;
+}
+
+.page{
+    border: 1px solid black;
+    color: teal;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.current__page{
+    border: 2px solid teal;
+
+}
+
 </style>
