@@ -2,12 +2,14 @@
     <div v-if="posts.length > 0">
         <h1>List of Posts</h1>
         <div class="posts">
-            <post-item 
-                v-for="post in posts" 
-                :key="post.id" 
-                :post="post"
-                @remove="$emit('remove', post)"
-            />
+            <transition-group name="list">
+                <post-item 
+                    v-for="post in posts" 
+                    :key="post.id" 
+                    :post="post"
+                    @remove="$emit('remove', post)"
+                />
+            </transition-group>
         </div>
     </div>
     <h1
@@ -40,4 +42,23 @@ export default{
     justify-content: flex-start;
     flex-wrap: wrap;
 }
+
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all .4s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(130px);
+}
+
+.list-move {
+  transition: transform .4s ease;
+}
+
 </style>
