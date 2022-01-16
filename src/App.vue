@@ -1,17 +1,25 @@
 <template>
     <div class="app">
-        <my-button 
-            class="add_post_btn"
-            @click="showDialog"
-        >
-            Add Post
-        </my-button>
+        <h1>POSTS</h1>
+        <div class="app__btns">
+            <my-button 
+                class="add_post_btn"
+                @click="showDialog"
+            >
+                Add Post
+            </my-button>
+            <my-select 
+                v-model="selectedSort"
+                :options="sortOptions"
+                class="select" 
+            />
+        </div>
         <my-dialog v-model:show="dialogVisible">
             <post-form @create="createPost"/>
         </my-dialog>
         <post-list 
             @remove="removePost" 
-            :posts="posts"
+            :posts="sortedPosts"
             v-if="!isPostsLoading"
         />
         <div
@@ -26,19 +34,26 @@ import PostList from "./components/PostList.vue";
 import MyButton from './components/UI/MyButton.vue';
 import MyDialog from './components/UI/MyDialog.vue';
 import axios from 'axios';
+import MySelect from './components/UI/MySelect.vue';
 
 export default{
     components: {
         PostForm,
         PostList,
         MyDialog,
-        MyButton
+        MyButton,
+        MySelect
     },
     data(){
         return{
             posts: [],
             dialogVisible: false,
             isPostsLoading: false,
+            selectedSort: '',
+            sortOptions: [
+                {value: 'title', name: 'By Title'},
+                {value: 'body', name: 'By Body'},
+            ],
         }
     },
     methods: {
@@ -66,6 +81,18 @@ export default{
     },
     mounted(){
         this.fetchPosts();
+    },
+    computed: {
+        sortedPosts(){
+            return [...this.posts].sort((p1, p2) => p1[this.selectedSort]?.localeCompare(p2[this.selectedSort]))
+        },
+    },
+    watch: {
+        // selectedSort(newValue){
+        //     this.posts.sort((p1, p2)=>{
+        //         return p1[newValue]?.localeCompare(p2[newValue])
+        //     });
+        // },
     }
 }
 </script>
@@ -79,6 +106,11 @@ export default{
 
 .app{
    padding: 20px;
+}
+
+.app__btns{
+    display: flex;
+    justify-content: space-between;
 }
 
 form{
@@ -103,6 +135,11 @@ form{
 }
 
 .add_post_btn{
+    margin-bottom: 15px;
+}
+
+.select{
+    margin-top: 15px;
     margin-bottom: 15px;
 }
 </style>
