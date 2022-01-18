@@ -35,7 +35,6 @@
 
 <style scoped>
 .post{
-    margin: 15px;
     padding: 15px;
     border: 2px solid teal;
     max-width: 300px;

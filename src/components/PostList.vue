@@ -38,9 +38,10 @@ export default{
 
 <style scoped>
 .posts{
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    display: grid;
+    justify-items: center;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-gap: 15px;
 }
 
 .list-item {
